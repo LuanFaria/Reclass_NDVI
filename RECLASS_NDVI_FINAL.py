@@ -46,11 +46,6 @@ def processo():
             MediaAlta=float(input('Insira valores média alta: '))
             fundo = float(0)
 
-            # falhas=float(0.1)
-            # MediaBaixa=float(0.2)
-            # Media=float(0.3)
-            # MediaAlta=float(0.4)
-            
             with rasterio.open(file) as src:
                 data = src.read(1)
                 
@@ -63,7 +58,6 @@ def processo():
                 profile = src.profile
                 profile.update(dtype=rasterio.float32)
                 
-
                 with rasterio.open(output_file, "w", **profile) as dst:
                     dst.write(reclass_data, 1)
                 print('Reclassificação - OK')
@@ -128,7 +122,6 @@ def processo():
         '\nBIOMASSA RUIM: ',dissolvido['BIOMASSA'][1]+dissolvido['BIOMASSA'][2],'%',
         '\nBIOMASSA MÉDIA: ',dissolvido['BIOMASSA'][3],'%',
         '\nBIOMASSA BOA: ',dissolvido['BIOMASSA'][4] + dissolvido['BIOMASSA'][5],'%')
-  
     dissolvido.to_file(saida_merge)
 
 executa= True
