@@ -1,7 +1,6 @@
 import rasterio
 from rasterio.enums import Resampling
 import geopandas as gpd
-from shapely.geometry import mapping, shape
 import numpy as np
 from rasterio.features import shapes
 import os
@@ -10,9 +9,9 @@ import pandas as pd
 import shutil
 
 #imputs
-raiz = 'X:/Sigmagis/VERTICAIS/COLABORADORES/Luan_Faria/TESTE_1/'
-shp = 'BASE_TALHOES_NDVI_FERRARI_J3_2024.shp'
-ervas= 'ERVAS_FERRARI_J3_2024.shp'
+raiz = 'C:/Users/luan.faria/Desktop/teste_5/'
+shp = 'BASE_TALHOES_NDVI_ARALCO_J1_2024.shp'
+ervas= ''
 
 # PASTAS
 PASTA_SHAPES = os.path.join(raiz, 'Vetores/shape/', shp )
@@ -25,36 +24,55 @@ RECLASS='C:/CLASSIFICACAO/REC/'
 VETORIZADO='C:/CLASSIFICACAO/VETOR/'
 INTERSECT='C:/CLASSIFICACAO/INTERSECT/'#imputs
 MERGE='C:/CLASSIFICACAO/MERGE/'
+DESCOMPRIMIR='C:/CLASSIFICACAO/DESC/'
 
 os.makedirs(os.path.join(SAIDA, 'REC'), exist_ok=True)
 os.makedirs(os.path.join(SAIDA, 'VETOR'), exist_ok=True)
 os.makedirs(os.path.join(SAIDA, 'INTERSECT'), exist_ok=True)
 os.makedirs(os.path.join(SAIDA, 'MERGE'), exist_ok=True)
+os.makedirs(os.path.join(SAIDA, 'DESC'), exist_ok=True)
+
+def descomprimir_raster():
+    for filename in os.listdir(PASTA_RESAMPLE):
+            if filename.endswith('.tif'):
+                file = os.path.join(PASTA_RESAMPLE, filename)
+                output_file = os.path.join(DESCOMPRIMIR, filename)
+
+                with rasterio.open(file) as src:
+                    teste = src.read(1)
+                    profile = src.profile
+                    profile.update(compress='')  # Desativa a compressão LZW
+                with rasterio.open(output_file, "w", **profile) as dst:
+                    dst.write(teste, 1)
 
 #reclassificação
 def processo():
-    for filename in os.listdir(PASTA_RESAMPLE):
+    descomprimir_raster()        
+    for filename in os.listdir(DESCOMPRIMIR):
         if filename.endswith('.tif'):
-            file = os.path.join(PASTA_RESAMPLE, filename)
+            file = os.path.join(DESCOMPRIMIR, filename)
             output_file = os.path.join(RECLASS, filename)
 
             print('\nAbrindo o Raster: ',filename)
 
-            falhas=float(input('Insira valores Falhas: '))
-            MediaBaixa=float(input('Insira valores média baixa: '))
-            Media=float(input('Insira valores média: '))
-            MediaAlta=float(input('Insira valores média alta: '))
-            fundo = float(0)
-
+            # falhas=float(input('Insira valores Falhas: '))
+            # MediaBaixa=float(input('Insira valores média baixa: '))
+            # Media=float(input('Insira valores média: '))
+            # MediaAlta=float(input('Insira valores média alta: '))
+            # fundo = float(0)
+            
+            falhas=float(0.1)
+            MediaBaixa=float(0.2)
+            Media=float(0.3)
+            MediaAlta=float(0.4)
+            
             with rasterio.open(file) as src:
                 data = src.read(1)
-                
                 reclass_data =  np.where(data <= falhas, 1,
                                 np.where(data <= MediaBaixa, 2,
                                 np.where(data <= Media, 3,
                                 np.where(data <= MediaAlta, 4,
                                 np.where(data <= 1.0, 5, 6)))))
-
                 profile = src.profile
                 profile.update(dtype=rasterio.float32)
                 
@@ -122,6 +140,7 @@ def processo():
         '\nBIOMASSA RUIM: ',dissolvido['BIOMASSA'][1]+dissolvido['BIOMASSA'][2],'%',
         '\nBIOMASSA MÉDIA: ',dissolvido['BIOMASSA'][3],'%',
         '\nBIOMASSA BOA: ',dissolvido['BIOMASSA'][4] + dissolvido['BIOMASSA'][5],'%')
+  
     dissolvido.to_file(saida_merge)
 
 executa= True
@@ -159,6 +178,7 @@ while executa:
             shutil.rmtree(VETORIZADO)
             shutil.rmtree(INTERSECT)
             shutil.rmtree(MERGE)
+            shutil.rmtree(DESCOMPRIMIR)
             print('FINALIZADO!!')
         else:
             print('\nNão Possui Shape de Ervas!\n\nCRIANDO AREA GIS NO SHP')
@@ -183,5 +203,5 @@ while executa:
             shutil.rmtree(VETORIZADO)
             shutil.rmtree(INTERSECT)
             shutil.rmtree(MERGE)
+            shutil.rmtree(DESCOMPRIMIR)
             print('FINALIZADO!!')
-            
