@@ -74,17 +74,17 @@ def processo():
 
             print('\nAbrindo o Raster: ',filename)
 
-            # falhas=float(input('Insira valores Falhas: '))
-            # MediaBaixa=float(input('Insira valores média baixa: '))
-            # Media=float(input('Insira valores média: '))
-            # MediaAlta=float(input('Insira valores média alta: '))
-            # fundo = float(0)
+            falhas=float(input('Insira valores Falhas: '))
+            MediaBaixa=float(input('Insira valores média baixa: '))
+            Media=float(input('Insira valores média: '))
+            MediaAlta=float(input('Insira valores média alta: '))
+            #fundo = float(0)
 
             #Valores para teste
-            falhas=float(0.1)
-            MediaBaixa=float(0.2)
-            Media=float(0.3)
-            MediaAlta=float(0.4)  
+            #falhas=float(0.1)
+            #MediaBaixa=float(0.2)
+            #Media=float(0.3)
+            #MediaAlta=float(0.4)  
             
             with rasterio.open(file) as src:
                 data = src.read(1)
